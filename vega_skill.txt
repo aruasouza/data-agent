@@ -1,0 +1,206 @@
+EXEMPLOS DE GRÁFICOS VEGA-LITE (sintaxe v5)
+
+IMPORTANTE: SEMPRE estruture os dados dentro de "data": {"values": [...]}.
+NUNCA coloque "values" na raiz do JSON. Sempre inclua "$schema".
+
+---
+
+1) GRÁFICO DE LINHA (evolução temporal, ex: faturamento por mês)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Evolução do Faturamento Mensal",
+  "data": {
+    "values": [
+      {"mes": "2024-07", "faturamento": 21016.75},
+      {"mes": "2024-08", "faturamento": 49998.18},
+      {"mes": "2024-09", "faturamento": 52859.00}
+    ]
+  },
+  "mark": {"type": "line", "point": true, "strokeWidth": 3},
+  "encoding": {
+    "x": {"field": "mes", "type": "ordinal", "title": "Mês"},
+    "y": {"field": "faturamento", "type": "quantitative", "title": "Faturamento (R$)"},
+    "tooltip": [
+      {"field": "mes", "type": "ordinal", "title": "Mês"},
+      {"field": "faturamento", "type": "quantitative", "title": "Faturamento (R$)", "format": ",.2f"}
+    ]
+  }
+}
+
+---
+
+2) GRÁFICO DE BARRAS (comparação entre categorias, ex: vendas por produto)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Vendas por Produto",
+  "data": {
+    "values": [
+      {"produto": "Produto A", "vendas": 120},
+      {"produto": "Produto B", "vendas": 85},
+      {"produto": "Produto C", "vendas": 200}
+    ]
+  },
+  "mark": {"type": "bar", "cornerRadiusEnd": 4},
+  "encoding": {
+    "x": {"field": "produto", "type": "nominal", "title": "Produto", "sort": "-y"},
+    "y": {"field": "vendas", "type": "quantitative", "title": "Quantidade Vendida"},
+    "color": {"field": "produto", "type": "nominal", "legend": null},
+    "tooltip": [
+      {"field": "produto", "type": "nominal", "title": "Produto"},
+      {"field": "vendas", "type": "quantitative", "title": "Vendas"}
+    ]
+  }
+}
+
+---
+
+3) GRÁFICO DE BARRAS AGRUPADAS (comparação entre categorias e subcategorias, ex: vendas por produto e mês)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Vendas por Produto e Mês",
+  "data": {
+    "values": [
+      {"mes": "Jan", "produto": "A", "vendas": 50},
+      {"mes": "Jan", "produto": "B", "vendas": 30},
+      {"mes": "Fev", "produto": "A", "vendas": 70},
+      {"mes": "Fev", "produto": "B", "vendas": 45}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "mes", "type": "nominal", "title": "Mês"},
+    "y": {"field": "vendas", "type": "quantitative", "title": "Vendas"},
+    "color": {"field": "produto", "type": "nominal", "title": "Produto"},
+    "xOffset": {"field": "produto"},
+    "tooltip": [
+      {"field": "mes", "type": "nominal", "title": "Mês"},
+      {"field": "produto", "type": "nominal", "title": "Produto"},
+      {"field": "vendas", "type": "quantitative", "title": "Vendas"}
+    ]
+  }
+}
+
+---
+
+4) GRÁFICO DE PIZZA / ROSCA (proporção entre categorias, ex: participação por categoria)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Participação por Categoria",
+  "data": {
+    "values": [
+      {"categoria": "Eletrônicos", "valor": 4500},
+      {"categoria": "Roupas", "valor": 2300},
+      {"categoria": "Alimentos", "valor": 3100},
+      {"categoria": "Outros", "valor": 900}
+    ]
+  },
+  "mark": {"type": "arc", "innerRadius": 60},
+  "encoding": {
+    "theta": {"field": "valor", "type": "quantitative"},
+    "color": {"field": "categoria", "type": "nominal", "title": "Categoria"},
+    "tooltip": [
+      {"field": "categoria", "type": "nominal", "title": "Categoria"},
+      {"field": "valor", "type": "quantitative", "title": "Valor", "format": ",.2f"}
+    ]
+  },
+  "view": {"stroke": null}
+}
+
+---
+
+5) GRÁFICO DE ÁREA (evolução acumulada/volume, ex: estoque ao longo do tempo)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Estoque ao Longo do Tempo",
+  "data": {
+    "values": [
+      {"data": "2024-01", "estoque": 320},
+      {"data": "2024-02", "estoque": 280},
+      {"data": "2024-03", "estoque": 410}
+    ]
+  },
+  "mark": {"type": "area", "line": true, "opacity": 0.4},
+  "encoding": {
+    "x": {"field": "data", "type": "ordinal", "title": "Mês"},
+    "y": {"field": "estoque", "type": "quantitative", "title": "Itens em Estoque"},
+    "tooltip": [
+      {"field": "data", "type": "ordinal", "title": "Mês"},
+      {"field": "estoque", "type": "quantitative", "title": "Estoque"}
+    ]
+  }
+}
+
+---
+
+6) GRÁFICO DE DISPERSÃO (relação entre duas variáveis numéricas, ex: preço vs quantidade vendida)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Preço vs. Quantidade Vendida",
+  "data": {
+    "values": [
+      {"preco": 19.90, "quantidade": 150},
+      {"preco": 49.90, "quantidade": 80},
+      {"preco": 99.90, "quantidade": 35},
+      {"preco": 9.90, "quantidade": 300}
+    ]
+  },
+  "mark": {"type": "circle", "size": 80, "opacity": 0.7},
+  "encoding": {
+    "x": {"field": "preco", "type": "quantitative", "title": "Preço (R$)"},
+    "y": {"field": "quantidade", "type": "quantitative", "title": "Quantidade Vendida"},
+    "tooltip": [
+      {"field": "preco", "type": "quantitative", "title": "Preço", "format": ",.2f"},
+      {"field": "quantidade", "type": "quantitative", "title": "Quantidade"}
+    ]
+  }
+}
+
+---
+
+7) GRÁFICO DE LINHAS MÚLTIPLAS (comparação de séries temporais, ex: faturamento por filial)
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Faturamento por Filial",
+  "data": {
+    "values": [
+      {"mes": "2024-01", "filial": "São Paulo", "faturamento": 50000},
+      {"mes": "2024-02", "filial": "São Paulo", "faturamento": 52000},
+      {"mes": "2024-01", "filial": "Curitiba", "faturamento": 30000},
+      {"mes": "2024-02", "filial": "Curitiba", "faturamento": 34000}
+    ]
+  },
+  "mark": {"type": "line", "point": true},
+  "encoding": {
+    "x": {"field": "mes", "type": "ordinal", "title": "Mês"},
+    "y": {"field": "faturamento", "type": "quantitative", "title": "Faturamento (R$)"},
+    "color": {"field": "filial", "type": "nominal", "title": "Filial"},
+    "tooltip": [
+      {"field": "mes", "type": "ordinal", "title": "Mês"},
+      {"field": "filial", "type": "nominal", "title": "Filial"},
+      {"field": "faturamento", "type": "quantitative", "title": "Faturamento", "format": ",.2f"}
+    ]
+  }
+}
+
+---
+
+REGRAS GERAIS:
+- Use "$schema": "https://vega.github.io/schema/vega-lite/v5.json" sempre.
+- Os dados devem SEMPRE estar em "data": {"values": [...]}.
+- Use "tooltip" para melhorar a interatividade.
+- Use "title" descritivo no gráfico e nos eixos.
+- Para valores monetários, use format ",.2f" no tooltip.
+- Escolha o tipo de gráfico de acordo com a pergunta:
+  - Evolução no tempo -> line ou area
+  - Comparação entre categorias -> bar
+  - Comparação entre categorias e subcategorias -> bar agrupado (xOffset)
+  - Proporção/participação -> arc (pizza/rosca)
+  - Relação entre duas variáveis numéricas -> circle/point (dispersão)
+  - Múltiplas séries no tempo -> line com "color"
