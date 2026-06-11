@@ -21,144 +21,8 @@ st.set_page_config(
 
 # ─── CSS personalizado ────────────────────────────────────────────────────────
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
-html, body, [class*="css"] {
-    font-family: 'DM Sans', sans-serif;
-}
-
-.stApp {
-    background: #0f1117;
-    color: #e8eaf0;
-}
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: #161b27 !important;
-    border-right: 1px solid #2a2f3e;
-}
-
-/* Chat messages */
-.user-bubble {
-    background: #1e3a5f;
-    border-radius: 18px 18px 4px 18px;
-    padding: 12px 16px;
-    margin: 8px 0;
-    margin-left: 20%;
-    color: #d0e8ff;
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.ai-bubble {
-    background: #1a2035;
-    border: 1px solid #2a3050;
-    border-radius: 18px 18px 18px 4px;
-    padding: 12px 16px;
-    margin: 8px 0;
-    margin-right: 15%;
-    color: #c8d8f0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.agent-label {
-    font-size: 0.75rem;
-    color: #4a90d9;
-    font-weight: 600;
-    margin-bottom: 4px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
-
-.user-label {
-    font-size: 0.75rem;
-    color: #7ab8f5;
-    font-weight: 600;
-    margin-bottom: 4px;
-    text-align: right;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
-
-/* Header */
-.main-header {
-    background: linear-gradient(135deg, #1a2a4a 0%, #0d1a2e 100%);
-    border-bottom: 1px solid #2a3a5a;
-    padding: 16px 24px;
-    margin-bottom: 0;
-}
-
-/* Metric cards */
-.metric-card {
-    background: #1a2035;
-    border: 1px solid #2a3050;
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-}
-
-/* Input area */
-.stTextInput > div > div > input {
-    background: #1a2035 !important;
-    border: 1px solid #2a3a5a !important;
-    border-radius: 24px !important;
-    color: #e8eaf0 !important;
-    padding: 12px 20px !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-
-.stButton > button {
-    background: linear-gradient(135deg, #1e5fa8, #0d3a6e) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 24px !important;
-    padding: 10px 24px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-weight: 500 !important;
-    transition: all 0.2s !important;
-}
-
-.stButton > button:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 15px rgba(30, 95, 168, 0.4) !important;
-}
-
-/* Status badge */
-.status-auth {
-    display: inline-block;
-    background: #0d3a1e;
-    color: #4ade80;
-    border: 1px solid #166534;
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.status-unauth {
-    display: inline-block;
-    background: #3a1a0d;
-    color: #fb923c;
-    border: 1px solid #7c2d12;
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-hr { border-color: #2a3050; }
-
-/* Scrollable chat area */
-.chat-container {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 8px;
-}
-</style>
-""", unsafe_allow_html=True)
+with open("style.css", "r") as f:
+    st.markdown(f'<style>\n{f.read()}\n</style>', unsafe_allow_html=True)
 
 
 # ─── Session state init ───────────────────────────────────────────────────────
@@ -245,7 +109,7 @@ def render_chat():
     msgs = st.session_state.display_messages
     charts = st.session_state.charts
 
-    chat_container = st.container(height=400)
+    chat_container = st.container(height=500,border=False,horizontal_alignment='center')
     with chat_container:
         if not msgs:
             st.markdown("""
@@ -340,23 +204,25 @@ def main():
     main_col, _ = st.columns([1, 0.001])
     with main_col:
         chat_container = render_chat()
-
-        # Atalho de shortcut
-        if "shortcut_prompt" in st.session_state:
-            prompt = st.session_state.pop("shortcut_prompt")
-            message = chat_container.chat_message(name='user')
-            message.write(prompt)
-            st.session_state.stream_response = True
-            handle_input(prompt,chat_container)
-            st.rerun()
+        msgs = st.session_state.display_messages
 
         # Input do usuário
-        user_input = st.chat_input(
-            key="user_input",
-            placeholder="Digite sua mensagem... (ex: 'Gastei R$45 no almoço hoje')",
-        )
+        if not msgs:
+            placeholder = chat_container.empty()
+            mini_cont = placeholder.container(width=550,border=False)
+            user_input = mini_cont.chat_input(
+                key="user_input",
+                placeholder="Digite sua mensagem... (ex: 'Crie um gráfico de linha do faturamento no último ano')",
+            )
+        else:
+            user_input = st.chat_input(
+                key="user_input",
+                placeholder="Digite sua mensagem... (ex: 'Crie um gráfico de linha do faturamento no último ano')",
+            )
         # Processa input
         if user_input:
+            if not msgs:
+                placeholder.empty()
             message = chat_container.chat_message(name='user')
             message.write(user_input)
             st.session_state.stream_response = True
