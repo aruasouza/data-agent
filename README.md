@@ -95,7 +95,7 @@ O uso do **agente ReAct** permite com que o agente possa executar tarefas comple
 `Compare a performance das campanhas`
 `Quais são as cidades com mais compras?`
 
-> 💡 Para reproduzir esses testes, basta digitar as perguntas na caixa de chat da interface e observar a resposta, os gráficos/tabelas gerados e o painel de "Consultas SQL" na barra lateral.
+> 💡 Para reproduzir esses testes, basta digitar as perguntas na caixa de chat da interface e observar a resposta, os gráficos/tabelas gerados e as consultas SQL utilizadas.
 
 ---
 
