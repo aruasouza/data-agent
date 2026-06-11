@@ -86,8 +86,16 @@ def render_sidebar():
             )
         else:
             st.button("📄 Exportar conversa em PDF", width='stretch', disabled=True)
-
-
+        
+        st.divider()
+        st.markdown(
+    """
+    <div style="text-align: center; padding: 10px; color: #6b7280; font-size: 0.9rem;">
+        Criado por: <strong>Aruã Viggiano Souza</strong>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 # ─── Chat area ────────────────────────────────────────────────────────────────
 
 def render_chat():
