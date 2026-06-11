@@ -40,8 +40,6 @@ def init_session():
         st.session_state.charts = []
     if "tables" not in st.session_state:
         st.session_state.tables = []
-    if "last_sql_queries" not in st.session_state:
-        st.session_state.last_sql_queries = []
 
 
 # ─── Chart renderer ───────────────────────────────────────────────────────────
@@ -73,7 +71,6 @@ def render_sidebar():
             st.session_state.display_messages = []
             st.session_state.charts = []
             st.session_state.tables = []
-            st.session_state.last_sql_queries = []
             st.session_state.pop("stream_response", None)
             st.rerun()
 
@@ -90,16 +87,6 @@ def render_sidebar():
         else:
             st.button("📄 Exportar conversa em PDF", width='stretch', disabled=True)
 
-        st.divider()
-
-        # Janela com as queries da última requisição
-        st.markdown("##### 🗄️ Consultas SQL (última requisição)")
-        queries = st.session_state.last_sql_queries
-        if queries:
-            for i, q in enumerate(queries, start=1):
-                st.code(q, language="sql")
-        else:
-            st.caption("Nenhuma consulta executada ainda.")
 
 # ─── Chat area ────────────────────────────────────────────────────────────────
 
@@ -143,6 +130,12 @@ def render_chat():
                     if msg.get("has_table") and table_idx < len(tables):
                         render_table(tables[table_idx])
                         table_idx += 1
+
+                    sql_queries = msg.get("sql_queries")
+                    if sql_queries:
+                        with st.expander("🗄️ Consultas SQL"):
+                            for q in sql_queries:
+                                st.code(q, language="sql")
     return chat_container
 
 
@@ -172,7 +165,6 @@ def handle_input(user_input: str, chat_container):
     sql_queries = result.get('last_response').get('sql_queries') or []
     if isinstance(sql_queries, str):
         sql_queries = [sql_queries]
-    st.session_state.last_sql_queries = sql_queries
 
     last_ai_msg = None
     for m in reversed(result["messages"]):
@@ -188,6 +180,7 @@ def handle_input(user_input: str, chat_container):
             "content": last_ai_msg,
             "has_chart": has_chart,
             "has_table": has_table,
+            "sql_queries": sql_queries,
         })
         if has_chart:
             st.session_state.charts.append(chart_request)
