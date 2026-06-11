@@ -46,6 +46,8 @@ O projeto segue uma arquitetura de **agente único baseado em ReAct** (via `lang
 
 O uso do **agente ReAct** permite com que o agente possa executar tarefas complexas com mais de um passo de execução, chamar as ferramentas que julgar necessário, avaliar os resultados e retornar a resposta apenas quando estiver satisfeito ou esgotar o limite de passos estabelecido.
 
+O agente foi equipado com duas ferramentas poderosas: Uma que permite a realização de consultas no banco de dados e outra que permite a criação de gráficos. A ferramenta de gráficos é especialmente notável pois utiliza um llm secundário para gerar a SPEC do gráfico com a sintaxe vega-lite. Essa spec é então validada pela biblioteca altair e se houver erro é solicitada uma correção.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Streamlit (app.py)                      │
@@ -101,7 +103,6 @@ O uso do **agente ReAct** permite com que o agente possa executar tarefas comple
 
 ## 4. Sugestões de melhorias e extensões
 
-- **Validação do JSON de tabelas**: adicionar uma etapa de validação (ex: `jsonschema` para Vega-Lite) antes de enviar `chart`/`table` para a interface, com correção automática de erros comuns.
 - **Gráficos mais avançados**: permitir que o agente acesse toda a documentação do vega-lite via RAG, para poder gerar gráficos mais complexos.
 - **Suporte a múltiplos bancos**: abstrair `database.py` com SQLAlchemy permitiria trocar SQLite por Postgres/MySQL sem alterar `agent.py`.
 - **Histórico persistente**: salvar conversas em disco/banco para que o usuário possa retomar sessões anteriores após recarregar a página.

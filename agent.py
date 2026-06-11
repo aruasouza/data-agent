@@ -4,6 +4,7 @@ load_dotenv()
 import json
 from datetime import date
 from typing import Annotated, Any, TypedDict
+import altair as alt
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
@@ -53,8 +54,32 @@ def create_chart(prompt: str, data: str) -> str:
             }'''),
         HumanMessage(content=f"Crie um gráfico vega-lite baseado neste prompt: {prompt} e estes dados: {data}")
     ]
-    chart: Chart = llm.invoke(mensagens)
-    return chart.chart
+
+    max_tentativas = 3
+    for tentativa in range(max_tentativas):
+        chart: Chart = llm.invoke(mensagens)
+
+        try:
+            spec = json.loads(chart.chart)
+        except json.JSONDecodeError as e:
+            erro = f"JSON inválido: {str(e)}"
+        else:
+            try:
+                # Valida a especificação contra o schema do Vega-Lite
+                alt.Chart.from_dict(spec).to_dict()
+                return chart.chart
+            except Exception as e:
+                erro = f"Especificação vega-lite inválida: {str(e)}"
+
+        # Realimenta o erro para o modelo tentar corrigir
+        mensagens.append(AIMessage(content=chart.chart))
+        mensagens.append(HumanMessage(
+            content=f"A especificação gerada é inválida. Erro: {erro}\n"
+                    f"Corrija a especificação vega-lite e retorne apenas o JSON corrigido."
+        ))
+
+    # Se todas as tentativas falharem, retorna a última especificação gerada mesmo assim
+    return "Não foi possível gerar um gráfico válido"
 
     
 @tool
@@ -83,7 +108,6 @@ Sua tarefa é:
 6. Se o usuário pedir uma tabela, ou se uma tabela for a melhor forma de apresentar os dados (ex: listagem de registros), preencha o campo `table` da resposta em formato csv. Não use chart e table ao mesmo tempo, a menos que o usuário peça explicitamente os dois.
 
 Sempre gere consultas SQL válidas e seguras. Se não tiver certeza sobre como responder, peça esclarecimentos.
-Se a pergunta não pode ser respondida com base nos dados disponíveis, diga isso ao usuário.
 
 IMPORTANTE: Sua resposta final SEMPRE deve ser entregue através da ferramenta 
 `responder_usuario`. Nunca responda diretamente em texto livre — 
